@@ -359,65 +359,33 @@ header.scrolled {
 }
 
 .about-grid {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 5rem;
-  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.about-image-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
+.about-content {
+  text-align: center;
 }
 
-.about-image-wrapper::after {
-  content: '';
-  position: absolute;
-  bottom: -15px;
-  left: -15px;
-  width: 140px;
-  height: 140px;
-  background-color: rgba(201, 160, 156, 0.15); /* Soft Dusty Rose Accent Overlay */
-  z-index: 1;
-  border-radius: 50%;
-}
-
-.about-img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  z-index: 2;
-  position: relative;
-  transition: var(--transition-smooth);
-}
-
-.about-img:hover {
-  transform: translateY(-5px);
-}
-
-.about-content h2 {
-  text-align: left;
-}
-
-.about-content h2::after {
-  margin: 1rem 0 0;
+.about-content p {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-intro {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 500;
   color: var(--text);
-  margin: 2rem 0 1.5rem;
+  margin: 0 0 1.5rem;
 }
 
 .about-pillars {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  margin-top: 3.5rem;
+  text-align: left;
 }
 
 .pillar {
@@ -985,22 +953,9 @@ footer {
     margin: 0 auto;
   }
 
-  .about-grid {
+  .about-pillars {
     grid-template-columns: 1fr;
-    gap: 3.5rem;
-  }
-
-  .about-content h2 {
-    text-align: center;
-  }
-
-  .about-content h2::after {
-    margin: 1rem auto 0;
-  }
-
-  .about-image-wrapper {
-    max-width: 450px;
-    margin: 0 auto;
+    gap: 2rem;
   }
 
   .skills-grid {
