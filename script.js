@@ -66,12 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
     currentYearSpan.textContent = new Date().getFullYear();
   }
 
-  // 4. Form Submission Interaction (Accessible UX Enhancement)
+  // 4. Form Submission Interaction (Connects to MongoDB Atlas backend)
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', (event) => {
-      // In a pure static page for GitHub Pages, we let the default behavior or show a nice thank-you interaction
-      // Let's intercept to show a visual confirmation modal/alert and then reset the form.
+    contactForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       
       const submitButton = contactForm.querySelector('button[type="submit"]');
@@ -92,35 +90,126 @@ document.addEventListener('DOMContentLoaded', () => {
       submitButton.textContent = 'Sending Message...';
       formStatus.textContent = 'Submitting form, please wait.';
 
-      setTimeout(() => {
-        // Success State Animation
-        submitButton.style.backgroundColor = '#5D8C5A'; // Clean green
-        submitButton.textContent = '✓ Message Sent!';
-        formStatus.textContent = 'Success! Your message was sent successfully. Natalia will get back to you soon.';
+      // Extract form values
+      const formData = new FormData(contactForm);
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const subject = formData.get('subject');
+      const message = formData.get('message');
+
+      // Create success/error card container
+      const resultMessage = document.createElement('div');
+      resultMessage.style.marginTop = '1.5rem';
+      resultMessage.style.padding = '1rem';
+      resultMessage.style.borderRadius = '4px';
+      resultMessage.style.fontSize = '0.95rem';
+      resultMessage.style.textAlign = 'center';
+      resultMessage.style.fontFamily = 'var(--font-body)';
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, subject, message }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Success State Animation
+          submitButton.style.backgroundColor = '#5D8C5A'; // Clean green
+          submitButton.textContent = '✓ Message Sent!';
+          formStatus.textContent = 'Success! Your message was sent and saved to MongoDB successfully.';
+          
+          resultMessage.style.backgroundColor = '#FAF9F6';
+          resultMessage.style.border = '1px solid #5D8C5A';
+          resultMessage.style.color = '#1c3d1b';
+          resultMessage.innerHTML = '<strong>Success!</strong> Your message has been saved directly to the MongoDB Atlas database. Natalia will get back to you soon!';
+          
+          contactForm.appendChild(resultMessage);
+          contactForm.reset();
+
+          setTimeout(() => {
+            submitButton.disabled = false;
+            submitButton.style.backgroundColor = '';
+            submitButton.textContent = originalText;
+            resultMessage.remove();
+          }, 8000);
+        } else {
+          // Handle server-returned validation or configuration error
+          submitButton.style.backgroundColor = '#C96464'; // Soft warning red
+          submitButton.textContent = 'Connection Setup Needed';
+          
+          resultMessage.style.backgroundColor = '#FFF5F5';
+          resultMessage.style.border = '1px solid #C96464';
+          resultMessage.style.color = '#7C2D12';
+          
+          if (data.isConfigError) {
+            formStatus.textContent = 'MongoDB Atlas database is not yet connected. Configure MONGODB_URI to store submissions.';
+            resultMessage.innerHTML = `<strong>MongoDB Setup Required:</strong> Your form code is ready, but your MongoDB Atlas database is not connected yet.<br><br>Please go to the <strong>Settings (Gear icon) &gt; Environment Variables</strong> panel in the AI Studio sidebar and add your <code>MONGODB_URI</code> connection string to activate the live database.`;
+          } else {
+            formStatus.textContent = 'Error sending message: ' + (data.error || 'Server error');
+            resultMessage.innerHTML = `<strong>Error:</strong> ${data.error || 'Failed to send message.'}`;
+          }
+          
+          contactForm.appendChild(resultMessage);
+
+          setTimeout(() => {
+            submitButton.disabled = false;
+            submitButton.style.backgroundColor = '';
+            submitButton.textContent = originalText;
+          }, 6000);
+
+          // Add a button inside the message card to dismiss it
+          const dismissBtn = document.createElement('button');
+          dismissBtn.textContent = 'Dismiss';
+          dismissBtn.style.display = 'block';
+          dismissBtn.style.margin = '0.5rem auto 0';
+          dismissBtn.style.fontSize = '0.8rem';
+          dismissBtn.style.padding = '0.2rem 0.6rem';
+          dismissBtn.style.border = '1px solid #C96464';
+          dismissBtn.style.borderRadius = '3px';
+          dismissBtn.style.backgroundColor = 'transparent';
+          dismissBtn.style.cursor = 'pointer';
+          dismissBtn.style.color = '#7C2D12';
+          dismissBtn.addEventListener('click', () => resultMessage.remove());
+          resultMessage.appendChild(dismissBtn);
+        }
+      } catch (err) {
+        console.error('Error submitting form:', err);
+        submitButton.style.backgroundColor = '#C96464';
+        submitButton.textContent = 'Connection Error';
+        formStatus.textContent = 'Failed to submit form due to a network connection error.';
         
-        // Show non-obtrusive alert or card within container
-        const successMessage = document.createElement('div');
-        successMessage.style.marginTop = '1.5rem';
-        successMessage.style.padding = '1rem';
-        successMessage.style.backgroundColor = '#FAF9F6';
-        successMessage.style.border = '1px solid #C5A059';
-        successMessage.style.borderRadius = '4px';
-        successMessage.style.color = '#292524';
-        successMessage.style.fontFamily = 'var(--font-body)';
-        successMessage.style.fontSize = '0.95rem';
-        successMessage.style.textAlign = 'center';
-        successMessage.innerHTML = '<strong>Thank you!</strong> Your message has been sent successfully. Since this is a static prototype on GitHub Pages, your form was simulated, but Natalia would love to connect with you via LinkedIn or Email!';
-        
-        contactForm.appendChild(successMessage);
-        contactForm.reset();
+        resultMessage.style.backgroundColor = '#FFF5F5';
+        resultMessage.style.border = '1px solid #C96464';
+        resultMessage.style.color = '#7C2D12';
+        resultMessage.innerHTML = '<strong>Connection Error:</strong> Could not reach the server. Make sure the development server is running and try again.';
+        contactForm.appendChild(resultMessage);
 
         setTimeout(() => {
           submitButton.disabled = false;
           submitButton.style.backgroundColor = '';
           submitButton.textContent = originalText;
-          successMessage.remove();
-        }, 8000);
-      }, 1500);
+        }, 6000);
+
+        // Add a button to dismiss
+        const dismissBtn = document.createElement('button');
+        dismissBtn.textContent = 'Dismiss';
+        dismissBtn.style.display = 'block';
+        dismissBtn.style.margin = '0.5rem auto 0';
+        dismissBtn.style.fontSize = '0.8rem';
+        dismissBtn.style.padding = '0.2rem 0.6rem';
+        dismissBtn.style.border = '1px solid #C96464';
+        dismissBtn.style.borderRadius = '3px';
+        dismissBtn.style.backgroundColor = 'transparent';
+        dismissBtn.style.cursor = 'pointer';
+        dismissBtn.style.color = '#7C2D12';
+        dismissBtn.addEventListener('click', () => resultMessage.remove());
+        resultMessage.appendChild(dismissBtn);
+      }
     });
   }
 
