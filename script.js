@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
           resultMessage.style.color = '#7C2D12';
           
           if (data.isConfigError) {
-            formStatus.textContent = 'MongoDB Atlas database is not yet connected. Configure MONGODB_URI to store submissions.';
-            resultMessage.innerHTML = `<strong>MongoDB Setup Required:</strong> Your form code is ready, but your MongoDB Atlas database is not connected yet.<br><br>Please go to the <strong>Settings (Gear icon) &gt; Environment Variables</strong> panel in the AI Studio sidebar and add your <code>MONGODB_URI</code> connection string to activate the live database.`;
+            formStatus.textContent = 'MongoDB Atlas database is not yet connected. Configure MONGODB_URL to store submissions.';
+            resultMessage.innerHTML = `<strong>MongoDB Setup Required:</strong> Your form code is ready, but your MongoDB Atlas database is not connected yet.<br><br>Please add your <code>MONGODB_URL</code> connection string in Environment Variables to activate the live database.`;
           } else {
             formStatus.textContent = 'Error sending message: ' + (data.error || 'Server error');
             resultMessage.innerHTML = `<strong>Error:</strong> ${data.error || 'Failed to send message.'}`;
