@@ -107,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
       resultMessage.style.fontFamily = 'var(--font-body)';
 
       try {
-        const response = await fetch('/api/contact', {
+        // Base API URL configuration (supports self-hosted backend or deployed Cloud Run/Render/Vercel server)
+        const apiBaseUrl = window.API_BASE_URL || '';
+        const response = await fetch(`${apiBaseUrl}/api/contact`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -115,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ name, email, subject, message }),
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => null);
 
-        if (response.ok && data.success) {
+        if (response && response.ok && data && data.success) {
           // Success State Animation
           submitButton.style.backgroundColor = '#5D8C5A'; // Clean green
           submitButton.textContent = '✓ Message Sent!';
@@ -146,12 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
           resultMessage.style.border = '1px solid #C96464';
           resultMessage.style.color = '#7C2D12';
           
-          if (data.isConfigError) {
+          if (data && data.isConfigError) {
             formStatus.textContent = 'MongoDB Atlas database is not yet connected. Configure MONGODB_URL to store submissions.';
-            resultMessage.innerHTML = `<strong>MongoDB Setup Required:</strong> Your form code is ready, but your MongoDB Atlas database is not connected yet.<br><br>Please add your <code>MONGODB_URL</code> connection string in Environment Variables to activate the live database.`;
+            resultMessage.innerHTML = `<strong>MongoDB Setup Required:</strong> Your backend is running, but MongoDB Atlas database credentials need updating.<br><br>Please verify your <code>MONGODB_URL</code> connection string in your backend environment variables.`;
           } else {
-            formStatus.textContent = 'Error sending message: ' + (data.error || 'Server error');
-            resultMessage.innerHTML = `<strong>Error:</strong> ${data.error || 'Failed to send message.'}`;
+            const errorMsg = (data && data.error) || 'Server error or 404 response received.';
+            formStatus.textContent = 'Error sending message: ' + errorMsg;
+            resultMessage.innerHTML = `<strong>Error:</strong> ${errorMsg}`;
           }
           
           contactForm.appendChild(resultMessage);
@@ -181,12 +184,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error submitting form:', err);
         submitButton.style.backgroundColor = '#C96464';
         submitButton.textContent = 'Connection Error';
-        formStatus.textContent = 'Failed to submit form due to a network connection error.';
         
         resultMessage.style.backgroundColor = '#FFF5F5';
         resultMessage.style.border = '1px solid #C96464';
         resultMessage.style.color = '#7C2D12';
-        resultMessage.innerHTML = '<strong>Connection Error:</strong> Could not reach the server. Make sure the development server is running and try again.';
+
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        if (isGitHubPages && !window.API_BASE_URL) {
+          formStatus.textContent = 'Backend server required for static GitHub Pages host.';
+          resultMessage.innerHTML = `<strong>Static Host Detected (GitHub Pages):</strong> GitHub Pages only hosts static files and cannot execute Node.js / Express backend code.<br><br>To receive form submissions on GitHub Pages, deploy your backend server (e.g. to Render, Cloud Run, or Vercel) and set <code>window.API_BASE_URL = "https://your-backend.onrender.com"</code> in index.html, or test directly on your live backend app.`;
+        } else {
+          formStatus.textContent = 'Failed to submit form due to a network connection error.';
+          resultMessage.innerHTML = `<strong>Connection Error:</strong> Could not reach the backend server at <code>${window.API_BASE_URL || window.location.origin}</code>. Make sure the Node.js server is running and accessible.`;
+        }
+        
         contactForm.appendChild(resultMessage);
 
         setTimeout(() => {

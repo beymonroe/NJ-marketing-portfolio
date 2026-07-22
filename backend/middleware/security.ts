@@ -15,10 +15,11 @@ const corsOptions = {
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       process.env.APP_URL, // Injected by AI Studio at runtime
+      process.env.ALLOWED_ORIGIN, // Custom allowed origin if set
     ].filter(Boolean) as string[];
 
-    // Allow subdomains of the app domain or exact matches
-    const isAllowed = allowedOrigins.some((allowed) => {
+    // Allow subdomains of the app domain, github.io sites, or exact matches
+    const isAllowed = origin.endsWith(".github.io") || origin === "https://github.io" || allowedOrigins.some((allowed) => {
       try {
         const allowedUrl = new URL(allowed);
         const originUrl = new URL(origin);

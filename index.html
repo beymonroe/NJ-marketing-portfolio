@@ -757,9 +757,16 @@
     </div>
   </div>
 
+  <!-- Configuration for Backend API when hosted on GitHub Pages or local development -->
+  <script>
+    // Live Render backend URL for GitHub Pages production site
+    const RENDER_BACKEND_URL = "https://nj-marketing-portfolio-1.onrender.com";
+    
+    // Auto-detect environment: use Render URL on GitHub Pages, use relative path on local dev
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    window.API_BASE_URL = window.API_BASE_URL || (isGitHubPages ? RENDER_BACKEND_URL : "");
+  </script>
   <!-- Link to central script.js at end of body for fast rendering -->
-<script>
-  window.API_BASE_URL = "https://nj-marketing-portfolio-1.onrender.com";
-</script>
+  <script src="script.js"></script>
 </body>
 </html>
