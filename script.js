@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isGitHubPages = window.location.hostname.includes('github.io');
         if (isGitHubPages && !window.API_BASE_URL) {
           formStatus.textContent = 'Backend server required for static GitHub Pages host.';
-          resultMessage.innerHTML = `<strong>Static Host Detected (GitHub Pages):</strong> GitHub Pages only hosts static files and cannot execute Node.js / Express backend code.<br><br>To receive form submissions on GitHub Pages, deploy your backend server (e.g. to Render, Cloud Run, or Vercel) and set <code>window.API_BASE_URL = "https://your-backend.onrender.com"</code> in index.html, or test directly on your live backend app.`;
+          resultMessage.innerHTML = `<strong>Static Host Detected (GitHub Pages):</strong> GitHub Pages only hosts static files and cannot execute Node.js / Express backend code.<br><br>To receive form submissions on GitHub Pages, set <code>window.API_BASE_URL = "https://nj-marketing-portfolio-1.onrender.com"</code> in index.html, or test directly on your live backend app.`;
         } else {
           formStatus.textContent = 'Failed to submit form due to a network connection error.';
           resultMessage.innerHTML = `<strong>Connection Error:</strong> Could not reach the backend server at <code>${window.API_BASE_URL || window.location.origin}</code>. Make sure the Node.js server is running and accessible.`;

@@ -45,6 +45,7 @@ export const generalLimiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per window
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  validate: { xForwardedForHeader: false, trustProxy: false },
   message: {
     success: false,
     error: "Too many requests from this IP, please try again after 15 minutes.",
@@ -56,6 +57,7 @@ export const contactFormLimiter = rateLimit({
   max: 10, // Limit each IP to 10 form submissions per hour
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false, trustProxy: false },
   message: {
     success: false,
     error: "Too many contact submissions from this IP. Please try again in an hour to protect against spam.",

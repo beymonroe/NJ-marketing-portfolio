@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { Contact } from "../models/Contact.js"; // Note: we can use relative imports
+import { Contact } from "../models/Contact.js";
+import { connectDB } from "../config/db.js";
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Initialize Gemini safely and lazily to avoid startup crashes if key is missing
@@ -84,7 +85,7 @@ export async function submitContactForm(req: Request, res: Response) {
 
     if (ai) {
       try {
-        console.log("Analyzing message content with Gemini 3.5 Flash...");
+        console.log("Analyzing message content with Gemini 2.5 Flash...");
         const prompt = `Analyze this contact form message sent to Natalia (a marketing and communications specialist) and generate metadata.
 Sender Name: ${cleanName}
 Sender Email: ${cleanEmail}
@@ -92,7 +93,7 @@ Subject: ${cleanSubject}
 Message: ${cleanMessage}`;
 
         const aiResponse = await ai.models.generateContent({
-          model: "gemini-3.5-flash",
+          model: "gemini-2.5-flash",
           contents: prompt,
           config: {
             systemInstruction: `You are Natalia's professional AI assistant. Analyze incoming contact forms. Categorize the inquiry as 'Job Offer', 'Freelance Project', 'Networking', or 'General Inquiry'. Provide a 1-sentence executive summary. Draft a highly professional, polite, and context-appropriate reply starting with 'Dear [Name],' that Natalia can review and send. Do not include markdown or external references. Output your reply STRICTLY as a single JSON object.`,
@@ -136,6 +137,8 @@ Message: ${cleanMessage}`;
     }
 
     // 4. Save to MongoDB via Mongoose
+    await connectDB();
+
     const newContact = new Contact({
       name: cleanName,
       email: cleanEmail,
@@ -168,7 +171,7 @@ Message: ${cleanMessage}`;
 
     return res.status(500).json({
       success: false,
-      error: "An error occurred while saving your message. Please try again later.",
+      error: error?.message || "An error occurred while saving your message. Please try again later.",
     });
   }
 }

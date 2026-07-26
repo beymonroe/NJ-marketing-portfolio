@@ -47,7 +47,9 @@ const ContactSchema = new mongoose.Schema<IContact>({
     suggestedReply: { type: String },
     processedAt: { type: Date },
   },
+}, {
+  collection: "contact_submissions"
 });
 
 // Avoid re-compiling the model if it already exists (useful in HMR/dev environments)
-export const Contact = mongoose.models.Contact || mongoose.model<IContact>("Contact", ContactSchema);
+export const Contact = mongoose.models.Contact || mongoose.model<IContact>("Contact", ContactSchema, "contact_submissions");

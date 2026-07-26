@@ -8,6 +8,9 @@ import { connectDB } from "./config/db.js";
 
 const app = express();
 
+// Trust reverse proxy headers (e.g. Render, Cloud Run, Nginx) for accurate IP identification in express-rate-limit
+app.set("trust proxy", 1);
+
 // 1. JSON & URL-encoded parsing with size limits to prevent body buffer exhaustion attacks
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
