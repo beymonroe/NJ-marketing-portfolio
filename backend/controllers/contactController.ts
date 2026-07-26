@@ -153,7 +153,7 @@ Message: ${cleanMessage}`;
 
     return res.status(200).json({
       success: true,
-      message: "Your message has been safely saved to Natalia's secure database! Thank you.",
+      message: "Thank you for your interest! Natalia will respond shortly.",
       id: savedDoc._id,
       aiProcessed: !!aiMetadata,
     });

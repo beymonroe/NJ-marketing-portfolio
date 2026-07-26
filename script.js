@@ -123,12 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
           // Success State Animation
           submitButton.style.backgroundColor = '#5D8C5A'; // Clean green
           submitButton.textContent = '✓ Message Sent!';
-          formStatus.textContent = 'Success! Your message was sent and saved to MongoDB successfully.';
+          formStatus.textContent = 'Thank you for your interest! Natalia will respond shortly.';
           
           resultMessage.style.backgroundColor = '#FAF9F6';
           resultMessage.style.border = '1px solid #5D8C5A';
           resultMessage.style.color = '#1c3d1b';
-          resultMessage.innerHTML = '<strong>Success!</strong> Your message has been saved directly to the MongoDB Atlas database. Natalia will get back to you soon!';
+          resultMessage.innerHTML = '<strong>Success!</strong> Thank you for your interest! Natalia will respond shortly.';
           
           contactForm.appendChild(resultMessage);
           contactForm.reset();
