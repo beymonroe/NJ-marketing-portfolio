@@ -8,7 +8,8 @@ const PORT = Number(process.env.PORT) || 3000;
 
 async function startServer() {
   // 1. Configure Dev Server (Vite Middleware) vs Production Server (Static assets)
-  if (process.env.NODE_ENV !== "production") {
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev) {
     console.log("Running in development mode with Vite middleware");
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -23,9 +24,6 @@ async function startServer() {
     
     // Serve static files compiled inside /dist
     app.use(express.static(distPath));
-    
-    // Serve root directory static assets (style.css, script.js, src/assets/images)
-    app.use(express.static(process.cwd()));
     
     // Catch-all route to serve index.html for Single Page Applications
     app.get("*", (req, res) => {

@@ -18,8 +18,8 @@ const corsOptions = {
       process.env.ALLOWED_ORIGIN, // Custom allowed origin if set
     ].filter(Boolean) as string[];
 
-    // Allow subdomains of the app domain, github.io sites, or exact matches
-    const isAllowed = origin.endsWith(".github.io") || origin === "https://github.io" || allowedOrigins.some((allowed) => {
+    // Allow subdomains of the app domain, github.io sites, onrender.com sites, or exact matches
+    const isAllowed = origin.endsWith(".github.io") || origin.endsWith(".onrender.com") || origin === "https://github.io" || allowedOrigins.some((allowed) => {
       try {
         const allowedUrl = new URL(allowed);
         const originUrl = new URL(origin);
@@ -67,13 +67,13 @@ export const securityMiddlewares: RequestHandler[] = [
   helmet({
     contentSecurityPolicy: {
       directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        // Allow images from trusted CDNs, Google Maps, and same origin
-        "img-src": ["'self'", "data:", "https:", "http:"],
-        // Allow scripts from same-origin and development environments
-        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        // Frame permissions for embedding
-        "frame-ancestors": ["'self'", "https://ai.studio", "https://*.google.com"],
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:", "http:"],
+        connectSrc: ["'self'", "https:", "http:"],
+        frameAncestors: ["'self'", "https://ai.studio", "https://*.google.com"],
       },
     },
   }) as unknown as RequestHandler,
