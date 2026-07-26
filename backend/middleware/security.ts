@@ -11,23 +11,39 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    const allowedOrigins = [
+    const rawAllowed = [
       "http://localhost:3000",
       "http://127.0.0.1:3000",
-      process.env.APP_URL, // Injected by AI Studio at runtime
-      process.env.ALLOWED_ORIGIN, // Custom allowed origin if set
-    ].filter(Boolean) as string[];
+      process.env.APP_URL,
+      process.env.ALLOWED_ORIGIN,
+      process.env.CORS_ORIGIN,
+      ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : []),
+    ];
+
+    const allowedOrigins = rawAllowed
+      .filter(Boolean)
+      .flatMap((item) => (item as string).split(","))
+      .map((item) => item.trim().replace(/\/$/, ""))
+      .filter(Boolean);
 
     // Allow subdomains of the app domain, github.io sites, onrender.com sites, or exact matches
-    const isAllowed = origin.endsWith(".github.io") || origin.endsWith(".onrender.com") || origin === "https://github.io" || allowedOrigins.some((allowed) => {
-      try {
-        const allowedUrl = new URL(allowed);
-        const originUrl = new URL(origin);
-        return originUrl.hostname === allowedUrl.hostname || originUrl.hostname.endsWith("." + allowedUrl.hostname);
-      } catch {
-        return allowed === origin;
-      }
-    });
+    const cleanOrigin = origin.replace(/\/$/, "");
+    const isAllowed =
+      cleanOrigin.endsWith(".github.io") ||
+      cleanOrigin.endsWith(".onrender.com") ||
+      cleanOrigin === "https://github.io" ||
+      allowedOrigins.some((allowed) => {
+        try {
+          const allowedUrl = new URL(allowed.includes("://") ? allowed : `https://${allowed}`);
+          const originUrl = new URL(cleanOrigin);
+          return (
+            originUrl.hostname === allowedUrl.hostname ||
+            originUrl.hostname.endsWith("." + allowedUrl.hostname)
+          );
+        } catch {
+          return allowed === cleanOrigin;
+        }
+      });
 
     if (isAllowed || process.env.NODE_ENV !== "production") {
       callback(null, true);
