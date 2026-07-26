@@ -24,6 +24,9 @@ async function startServer() {
     // Serve static files compiled inside /dist
     app.use(express.static(distPath));
     
+    // Serve root directory static assets (style.css, script.js, src/assets/images)
+    app.use(express.static(process.cwd()));
+    
     // Catch-all route to serve index.html for Single Page Applications
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
